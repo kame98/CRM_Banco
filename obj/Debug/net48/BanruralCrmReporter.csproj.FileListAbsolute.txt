@@ -1,0 +1,56 @@
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\BanruralCrmReporter.exe.config
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\BanruralCrmReporter.exe
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\BanruralCrmReporter.pdb
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\MySqlConnector.dll
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\System.Buffers.dll
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\System.Diagnostics.DiagnosticSource.dll
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\System.Memory.dll
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\System.Numerics.Vectors.dll
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\bin\Debug\net48\System.Threading.Tasks.Extensions.dll
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.csproj.AssemblyReference.cache
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.csproj.SuggestedBindingRedirects.cache
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.exe.config
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\MainWindow.baml
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\MainWindow.g.cs
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\App.g.cs
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter_MarkupCompile.cache
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.g.resources
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.AssemblyInfoInputs.cache
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.AssemblyInfo.cs
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.csproj.CoreCompileInputs.cache
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\Banrural.3FE45690.Up2Date
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.exe
+C:\Users\kev98\OneDrive\Documentos\New project\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.pdb
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.csproj.AssemblyReference.cache
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.csproj.SuggestedBindingRedirects.cache
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.exe.config
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\MainWindow.baml
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\MainWindow.g.cs
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\App.g.cs
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter_MarkupCompile.cache
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.g.resources
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.GeneratedMSBuildEditorConfig.editorconfig
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.AssemblyInfoInputs.cache
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.AssemblyInfo.cs
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.csproj.CoreCompileInputs.cache
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.exe
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.pdb
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\BanruralCrmReporter.exe.config
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\BanruralCrmReporter.exe
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\BanruralCrmReporter.pdb
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\MySqlConnector.dll
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\System.Buffers.dll
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\System.Diagnostics.DiagnosticSource.dll
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\System.Memory.dll
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\System.Numerics.Vectors.dll
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\System.Runtime.CompilerServices.Unsafe.dll
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\System.Threading.Tasks.Extensions.dll
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\Banrural.3FE45690.Up2Date
