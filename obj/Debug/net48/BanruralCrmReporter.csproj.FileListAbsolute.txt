@@ -54,3 +54,4 @@ C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\
 C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\System.Runtime.CompilerServices.Unsafe.dll
 C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\bin\Debug\net48\System.Threading.Tasks.Extensions.dll
 C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\Banrural.3FE45690.Up2Date
+C:\Tareas Universidad\7mo Semestre\Analisis de sistemas\BanruralCrmReporter\obj\Debug\net48\BanruralCrmReporter.sourcelink.json

@@ -1,0 +1,349 @@
+﻿<Window x:Class="BanruralCrmReporter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CRM Reporter Banrural" Height="760" Width="1180"
+        MinHeight="680" MinWidth="1040" Background="#F5F7FA">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="Padding" Value="14,6"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Background" Value="#0E7A3F"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Padding" Value="7,4"/>
+        </Style>
+        <Style TargetType="PasswordBox">
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Padding" Value="7,4"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Padding" Value="5,3"/>
+        </Style>
+        <Style TargetType="DatePicker">
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Margin" Value="4"/>
+        </Style>
+        <Style TargetType="GroupBox">
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+        </Style>
+        <Style TargetType="DataGrid">
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="AutoGenerateColumns" Value="True"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="AlternatingRowBackground" Value="#F8FAFC"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="#0B4F2B" Padding="18,14">
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Left">
+                    <TextBlock Text="CRM Reporter Banrural" Foreground="White" FontSize="24" FontWeight="SemiBold"/>
+                    <TextBlock Text="Visitas tecnicas, inventario, tickets, auditoria y KPIs" Foreground="#D7F3E3" FontSize="13"/>
+                </StackPanel>
+                <TextBlock x:Name="StatusText" DockPanel.Dock="Right" Foreground="#D7F3E3"
+                           VerticalAlignment="Center" Text="Sin conexion" FontWeight="SemiBold"/>
+            </DockPanel>
+        </Border>
+
+        <TabControl Margin="10">
+            <TabItem Header="Conexion">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel MaxWidth="760" HorizontalAlignment="Left" Margin="12">
+                        <GroupBox Header="MySQL">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0" Text="Servidor" VerticalAlignment="Center"/>
+                                <TextBox x:Name="ServerBox" Grid.Row="0" Grid.Column="1" Text="localhost"/>
+
+                                <TextBlock Grid.Row="1" Text="Puerto" VerticalAlignment="Center"/>
+                                <TextBox x:Name="PortBox" Grid.Row="1" Grid.Column="1" Text="3306"/>
+
+                                <TextBlock Grid.Row="2" Text="Base de datos" VerticalAlignment="Center"/>
+                                <TextBox x:Name="DatabaseBox" Grid.Row="2" Grid.Column="1" Text="banrural_crm"/>
+
+                                <TextBlock Grid.Row="3" Text="Usuario" VerticalAlignment="Center"/>
+                                <TextBox x:Name="UserBox" Grid.Row="3" Grid.Column="1" Text="root"/>
+
+                                <TextBlock Grid.Row="4" Text="Contrasena" VerticalAlignment="Center"/>
+                                <PasswordBox x:Name="PasswordBox" Grid.Row="4" Grid.Column="1"/>
+
+                                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <Button Content="Probar conexion" Click="TestConnection_Click"/>
+                                    <Button Content="Cargar datos" Click="RefreshAll_Click"/>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox Header="Primer uso">
+                            <TextBlock TextWrapping="Wrap" Foreground="#334155">
+                                Ejecute el archivo scripts/schema_mysql.sql en MySQL para crear la base de datos banrural_crm con datos de ejemplo. Despues pruebe la conexion y cargue datos.
+                            </TextBlock>
+                        </GroupBox>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <TabItem Header="Dashboard">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <GroupBox Header="Indicadores clave de desempeño (KPIs)" Grid.Row="0" Margin="8">
+                        <TextBlock TextWrapping="Wrap" Foreground="#334155" Margin="4">
+                            Los KPIs mostrados a continuación permiten monitorear en tiempo real el estado de los tickets, 
+                            inventario y prestamos. Los porcentajes indican el cumplimiento de objetivos.
+                        </TextBlock>
+                    </GroupBox>
+
+                    <UniformGrid x:Name="KpiPanel" Grid.Row="1" Columns="4" Margin="8"/>
+                    <DataGrid x:Name="WarrantyGrid" Grid.Row="2"/>
+                    <DataGrid x:Name="AuditGrid" Grid.Row="3"/>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Reportes">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8">
+                        <ComboBox x:Name="ReportBox" Width="280" SelectionChanged="ReportBox_SelectionChanged">
+                            <ComboBoxItem Content="Usuarios por rol" Tag="usuarios"/>
+                            <ComboBoxItem Content="Visitas tecnicas" Tag="visitas"/>
+                            <ComboBoxItem Content="Inventario completo" Tag="inventario"/>
+                            <ComboBoxItem Content="Tickets" Tag="tickets"/>
+                            <ComboBoxItem Content="Mantenimientos" Tag="mantenimientos"/>
+                            <ComboBoxItem Content="Prestamos activos" Tag="prestamos"/>
+                            <ComboBoxItem Content="Movimientos de inventario" Tag="movimientos"/>
+                            <ComboBoxItem Content="Garantias proximas a vencer" Tag="garantias"/>
+                            <ComboBoxItem Content="Logs de auditoria" Tag="logs"/>
+                        </ComboBox>
+                        <Button Content="Actualizar reporte" Click="LoadSelectedReport_Click"/>
+                    </StackPanel>
+                    <DataGrid x:Name="ReportGrid"/>
+                </DockPanel>
+            </TabItem>
+
+            <TabItem Header="Usuarios">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="360"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox Header="Registrar/Editar usuario">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="Nombre"/>
+                                <TextBox x:Name="UserNameBox"/>
+                                <TextBlock Text="Apellido"/>
+                                <TextBox x:Name="UserLastNameBox"/>
+                                <TextBlock Text="Correo"/>
+                                <TextBox x:Name="UserEmailBox"/>
+                                <TextBlock Text="Contrasena temporal"/>
+                                <PasswordBox x:Name="UserPasswordBox"/>
+                                <TextBlock Text="Telefono"/>
+                                <TextBox x:Name="UserPhoneBox"/>
+                                <TextBlock Text="Rol"/>
+                                <ComboBox x:Name="UserRoleBox" DisplayMemberPath="nombre_rol" SelectedValuePath="id_rol"/>
+                                <TextBlock Text="Estado"/>
+                                <ComboBox x:Name="UserStatusBox">
+                                    <ComboBoxItem Content="activo" IsSelected="True"/>
+                                    <ComboBoxItem Content="inactivo"/>
+                                </ComboBox>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Guardar" Click="SaveUser_Click"/>
+                                    <Button Content="Limpiar" Click="ClearUserForm_Click"/>
+                                </StackPanel>
+                                <TextBlock x:Name="UserIdHidden" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Margin="8">
+                            <TextBlock Text="Selecciona un usuario para editar o eliminar" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <DataGrid x:Name="UsersGrid" Grid.Row="1" MouseDoubleClick="UsersGrid_MouseDoubleClick"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Inventario">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="360"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox Header="Registrar/Editar equipo">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="Serial"/>
+                                <TextBox x:Name="SerialBox"/>
+                                <TextBlock Text="Categoria"/>
+                                <ComboBox x:Name="CategoryBox" DisplayMemberPath="nombre_categoria" SelectedValuePath="id_categoria"/>
+                                <TextBlock Text="Marca"/>
+                                <TextBox x:Name="BrandBox"/>
+                                <TextBlock Text="Modelo"/>
+                                <TextBox x:Name="ModelBox"/>
+                                <TextBlock Text="Estado"/>
+                                <ComboBox x:Name="AssetStatusBox">
+                                    <ComboBoxItem Content="Disponible" IsSelected="True"/>
+                                    <ComboBoxItem Content="Prestado"/>
+                                    <ComboBoxItem Content="Devuelto"/>
+                                    <ComboBoxItem Content="Dañado"/>
+                                    <ComboBoxItem Content="Baja"/>
+                                </ComboBox>
+                                <TextBlock Text="Bodega"/>
+                                <ComboBox x:Name="WarehouseBox" DisplayMemberPath="nombre_bodega" SelectedValuePath="id_bodega"/>
+                                <TextBlock Text="Fecha de compra"/>
+                                <DatePicker x:Name="PurchaseDatePicker"/>
+                                <TextBlock Text="Fin de garantia"/>
+                                <DatePicker x:Name="WarrantyDatePicker"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Guardar" Click="SaveAsset_Click"/>
+                                    <Button Content="Limpiar" Click="ClearAssetForm_Click"/>
+                                </StackPanel>
+                                <TextBlock x:Name="AssetIdHidden" Visibility="Collapsed"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Orientation="Horizontal" Margin="8">
+                            <TextBlock Text="Selecciona un equipo para editar o eliminar" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <DataGrid x:Name="InventoryGrid" Grid.Row="1" MouseDoubleClick="InventoryGrid_MouseDoubleClick"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Visitas y Tickets">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="360"/>
+                        <ColumnDefinition Width="360"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <GroupBox Header="Registrar visita tecnica">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="Tecnico"/>
+                                <ComboBox x:Name="VisitTechnicianBox" DisplayMemberPath="nombre_completo" SelectedValuePath="id_usuario"/>
+                                <TextBlock Text="Agencia"/>
+                                <ComboBox x:Name="AgencyBox" DisplayMemberPath="nombre_agencia" SelectedValuePath="id_agencia"/>
+                                <TextBlock Text="Fecha de visita"/>
+                                <DatePicker x:Name="VisitDatePicker"/>
+                                <TextBlock Text="Estado"/>
+                                <ComboBox x:Name="VisitStatusBox">
+                                    <ComboBoxItem Content="Pendiente" IsSelected="True"/>
+                                    <ComboBoxItem Content="En proceso"/>
+                                    <ComboBoxItem Content="Completada"/>
+                                </ComboBox>
+                                <TextBlock Text="Descripcion"/>
+                                <TextBox x:Name="VisitDescriptionBox" MinHeight="90" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                <Button Content="Guardar visita" Click="SaveVisit_Click"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+
+                    <GroupBox Header="Registrar ticket" Grid.Column="1">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="Reportado por"/>
+                                <ComboBox x:Name="TicketReporterBox" DisplayMemberPath="nombre_completo" SelectedValuePath="id_usuario"/>
+                                <TextBlock Text="Tecnico asignado"/>
+                                <ComboBox x:Name="TicketTechnicianBox" DisplayMemberPath="nombre_completo" SelectedValuePath="id_usuario"/>
+                                <TextBlock Text="Titulo"/>
+                                <TextBox x:Name="TicketTitleBox"/>
+                                <TextBlock Text="Prioridad"/>
+                                <ComboBox x:Name="TicketPriorityBox">
+                                    <ComboBoxItem Content="Baja"/>
+                                    <ComboBoxItem Content="Media" IsSelected="True"/>
+                                    <ComboBoxItem Content="Alta"/>
+                                    <ComboBoxItem Content="Crítica"/>
+                                </ComboBox>
+                                <TextBlock Text="Estado"/>
+                                <ComboBox x:Name="TicketStatusBox">
+                                    <ComboBoxItem Content="Pendiente" IsSelected="True"/>
+                                    <ComboBoxItem Content="En proceso"/>
+                                    <ComboBoxItem Content="Resuelto"/>
+                                </ComboBox>
+                                <TextBlock Text="Descripcion"/>
+                                <TextBox x:Name="TicketDescriptionBox" MinHeight="90" TextWrapping="Wrap" AcceptsReturn="True"/>
+                                <Button Content="Guardar ticket" Click="SaveTicket_Click"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+
+                    <TabControl Grid.Column="2" Margin="4">
+                        <TabItem Header="Visitas">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Orientation="Horizontal" Margin="8" Grid.Row="0">
+                                    <TextBlock Text="Buscar por tecnico:" VerticalAlignment="Center" Margin="4"/>
+                                    <TextBox x:Name="VisitTechnicianSearchBox" Width="200" Margin="4"/>
+                                    <Button Content="Buscar" Click="SearchVisitsByTechnician_Click" Margin="4"/>
+                                    <Button Content="Ver todas" Click="ClearVisitSearch_Click" Margin="4"/>
+                                </StackPanel>
+                                <DataGrid x:Name="VisitsGrid" Grid.Row="1"/>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="Tickets">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Orientation="Horizontal" Margin="8" Grid.Row="0">
+                                    <TextBlock Text="Buscar por ID de ticket:" VerticalAlignment="Center" Margin="4"/>
+                                    <TextBox x:Name="TicketIdSearchBox" Width="200" Margin="4"/>
+                                    <Button Content="Buscar" Click="SearchTicketById_Click" Margin="4"/>
+                                    <Button Content="Ver todos" Click="ClearTicketSearch_Click" Margin="4"/>
+                                </StackPanel>
+                                <DataGrid x:Name="TicketsGrid" Grid.Row="1"/>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>
