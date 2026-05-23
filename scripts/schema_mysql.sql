@@ -132,11 +132,17 @@ CREATE TABLE tickets (
     descripcion TEXT NOT NULL,
     estado VARCHAR(30) NOT NULL DEFAULT 'Pendiente',
     prioridad VARCHAR(20) NOT NULL DEFAULT 'Media',
+    tipificacion VARCHAR(100) NULL,
+    resultado_atencion VARCHAR(30) NULL,
+    descripcion_atencion TEXT NULL,
+    cerrado_por_id INT NULL,
     fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_cierre TIMESTAMP NULL,
     CONSTRAINT chk_tickets_estado CHECK (estado IN ('Pendiente', 'En proceso', 'Resuelto')),
     CONSTRAINT chk_tickets_prioridad CHECK (prioridad IN ('Baja', 'Media', 'Alta', 'Crítica')),
     CONSTRAINT fk_tickets_reportante FOREIGN KEY (usuario_id) REFERENCES usuarios(id_usuario),
-    CONSTRAINT fk_tickets_tecnico FOREIGN KEY (tecnico_id) REFERENCES usuarios(id_usuario)
+    CONSTRAINT fk_tickets_tecnico FOREIGN KEY (tecnico_id) REFERENCES usuarios(id_usuario),
+    CONSTRAINT fk_tickets_cierre_usuario FOREIGN KEY (cerrado_por_id) REFERENCES usuarios(id_usuario)
 ) ENGINE=InnoDB;
 
 CREATE TABLE kpis (
@@ -163,7 +169,8 @@ INSERT INTO roles (nombre_rol, descripcion) VALUES
     ('Supervisor IT', 'Aprueba y monitorea actividades técnicas'),
     ('Gerencia', 'Visualización de dashboards y reportes'),
     ('Encargado de Bodega', 'Gestiona inventario y suministros'),
-    ('Auditor', 'Consulta logs y movimientos del sistema');
+    ('Auditor', 'Consulta logs y movimientos del sistema'),
+    ('Usuario', 'Crea solicitudes de tickets y consulta su estado');
 
 INSERT INTO agencias (nombre_agencia, direccion, region, telefono) VALUES
     ('Agencia Central', '6a Avenida 9-51 Zona 1', 'Metropolitana', '22220001'),
@@ -186,7 +193,14 @@ INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol_id, es
     ('Roberto', 'Hernández', 'roberto.hernandez@banrural.com', 'hashed_pwd_004', '55550004', 3, 'activo'),
     ('Silvia', 'Castillo', 'silvia.castillo@banrural.com', 'hashed_pwd_005', '55550005', 4, 'activo'),
     ('Marcos', 'Fuentes', 'marcos.fuentes@banrural.com', 'hashed_pwd_006', '55550006', 5, 'activo'),
-    ('Patricia', 'Ruiz', 'patricia.ruiz@banrural.com', 'hashed_pwd_007', '55550007', 6, 'activo');
+    ('Patricia', 'Ruiz', 'patricia.ruiz@banrural.com', 'hashed_pwd_007', '55550007', 6, 'activo'),
+    ('Administrador', 'Sistema', 'admin@banrural.local', 'admin123', '', 1, 'activo'),
+    ('Auditor', 'Sistema', 'auditor@banrural.local', 'auditor123', '', 6, 'activo'),
+    ('Bodega', 'Sistema', 'bodega@banrural.local', 'bodega123', '', 5, 'activo'),
+    ('Gerencia', 'Sistema', 'gerencia@banrural.local', 'gerencia123', '', 4, 'activo'),
+    ('Supervisor', 'IT', 'supervisor@banrural.local', 'supervisor123', '', 3, 'activo'),
+    ('Tecnico', 'IT', 'tecnico@banrural.local', 'tecnico123', '', 2, 'activo'),
+    ('usuario', 'General', 'usuario@banrural.local', 'usuario123', '', 7, 'activo');
 
 INSERT INTO bodegas (nombre_bodega, ubicacion, encargado_id) VALUES
     ('Bodega Central', 'Edificio Principal, Sótano 1, Zona 1', 6),

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BanruralCrmReporter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e07f98d067218da1674a63af936fe79a8853bc02")]
 [assembly: System.Reflection.AssemblyProductAttribute("BanruralCrmReporter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BanruralCrmReporter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

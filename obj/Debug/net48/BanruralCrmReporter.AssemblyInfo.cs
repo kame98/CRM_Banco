@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BanruralCrmReporter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+aca97429448a0242e4ad60329967098b0c75edb8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e07f98d067218da1674a63af936fe79a8853bc02")]
 [assembly: System.Reflection.AssemblyProductAttribute("BanruralCrmReporter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BanruralCrmReporter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

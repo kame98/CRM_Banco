@@ -48,20 +48,43 @@
         </Style>
     </Window.Resources>
 
-    <DockPanel>
+    <Grid>
+    <Grid x:Name="LoginPanel" Background="#F5F7FA">
+        <Border Width="440" Padding="28" Background="White" BorderBrush="#CBD5E1" BorderThickness="1"
+                CornerRadius="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel>
+                <TextBlock Text="CRM Reporter Banrural" FontSize="26" FontWeight="SemiBold" Foreground="#0B4F2B"/>
+                <TextBlock Text="Ingrese sus credenciales para continuar" Foreground="#475569" Margin="0,6,0,20"/>
+
+                <TextBlock Text="Usuario o correo"/>
+                <TextBox x:Name="LoginUserBox" ToolTip="Puede ingresar correo, nombre de usuario o nombre registrado"/>
+
+                <TextBlock Text="Contrasena"/>
+                <PasswordBox x:Name="LoginPasswordBox" KeyDown="LoginPasswordBox_KeyDown"/>
+
+                <Button Content="Iniciar sesion" Click="Login_Click" Margin="4,14,4,4"/>
+                <TextBlock x:Name="LoginMessageText" Foreground="#B91C1C" TextWrapping="Wrap" Margin="4,10,4,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+
+    <DockPanel x:Name="AppShell" Visibility="Collapsed">
         <Border DockPanel.Dock="Top" Background="#0B4F2B" Padding="18,14">
             <DockPanel LastChildFill="True">
                 <StackPanel DockPanel.Dock="Left">
                     <TextBlock Text="CRM Reporter Banrural" Foreground="White" FontSize="24" FontWeight="SemiBold"/>
                     <TextBlock Text="Visitas tecnicas, inventario, tickets, auditoria y KPIs" Foreground="#D7F3E3" FontSize="13"/>
                 </StackPanel>
-                <TextBlock x:Name="StatusText" DockPanel.Dock="Right" Foreground="#D7F3E3"
-                           VerticalAlignment="Center" Text="Sin conexion" FontWeight="SemiBold"/>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="CurrentUserText" Foreground="White" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="StatusText" Foreground="#D7F3E3" VerticalAlignment="Center" Text="Sin conexion" FontWeight="SemiBold"/>
+                    <Button Content="Cerrar sesion" Click="Logout_Click" Margin="12,0,0,0" Background="#166534"/>
+                </StackPanel>
             </DockPanel>
         </Border>
 
-        <TabControl Margin="10">
-            <TabItem Header="Conexion">
+        <TabControl x:Name="MainTabs" Margin="10">
+            <TabItem x:Name="ConnectionTab" Header="Conexion">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel MaxWidth="760" HorizontalAlignment="Left" Margin="12">
                         <GroupBox Header="MySQL">
@@ -110,7 +133,7 @@
                 </ScrollViewer>
             </TabItem>
 
-            <TabItem Header="Dashboard">
+            <TabItem x:Name="DashboardTab" Header="Dashboard">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -144,7 +167,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Reportes">
+            <TabItem x:Name="ReportsTab" Header="Reportes">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8">
                         <ComboBox x:Name="ReportBox" Width="280" SelectionChanged="ReportBox_SelectionChanged">
@@ -164,7 +187,7 @@
                 </DockPanel>
             </TabItem>
 
-            <TabItem Header="Usuarios">
+            <TabItem x:Name="UsersTab" Header="Usuarios">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="360"/>
@@ -215,7 +238,7 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Inventario">
+            <TabItem x:Name="InventoryTab" Header="Inventario">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="360"/>
@@ -273,16 +296,64 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Visitas y Tickets">
+            <TabItem x:Name="UserRequestsTab" Header="Solicitudes">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="360"/>
                         <ColumnDefinition Width="360"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <GroupBox Header="Registrar visita tecnica">
+                    <GroupBox Header="Crear solicitud de ticket">
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <StackPanel>
+                                <TextBlock Text="Titulo *"/>
+                                <TextBox x:Name="RequestTicketTitleBox" ToolTip="Resumen corto del problema"/>
+                                <TextBlock Text="Tipo de solicitud"/>
+                                <ComboBox x:Name="RequestTicketTypeBox" ToolTip="Ayuda a enrutar el ticket a tecnico o bodega">
+                                    <ComboBoxItem Content="Soporte tecnico" IsSelected="True"/>
+                                    <ComboBoxItem Content="Solicitud de equipo"/>
+                                    <ComboBoxItem Content="Cambio de equipo"/>
+                                    <ComboBoxItem Content="Prestamo"/>
+                                    <ComboBoxItem Content="Extra"/>
+                                    <ComboBoxItem Content="Devolucion"/>
+                                </ComboBox>
+                                <TextBlock Text="Prioridad"/>
+                                <ComboBox x:Name="RequestTicketPriorityBox">
+                                    <ComboBoxItem Content="Baja"/>
+                                    <ComboBoxItem Content="Media" IsSelected="True"/>
+                                    <ComboBoxItem Content="Alta"/>
+                                    <ComboBoxItem Content="Critica"/>
+                                </ComboBox>
+                                <TextBlock Text="Descripcion *"/>
+                                <TextBox x:Name="RequestTicketDescriptionBox" MinHeight="130" TextWrapping="Wrap" AcceptsReturn="True"
+                                         ToolTip="Detalle lo que ocurre, agencia/equipo afectado y urgencia"/>
+                                <Button x:Name="RequestTicketButton" Content="Enviar solicitud" Click="CreateUserTicket_Click"/>
+                                <TextBlock x:Name="RequestTicketMessageText" Foreground="#0B4F2B" TextWrapping="Wrap" Margin="4,10,4,0"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </GroupBox>
+
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock x:Name="UserTicketsTitleText" Text="Tickets creados por usuarios" Margin="12" FontWeight="SemiBold" Foreground="#334155"/>
+                        <DataGrid x:Name="UserTicketsGrid" Grid.Row="1" MouseDoubleClick="UserTicketsGrid_MouseDoubleClick"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <TabItem x:Name="WorkTab" Header="Visitas y Tickets">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="360"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <GroupBox x:Name="VisitEntryGroup" Header="Registrar visita tecnica">
                             <StackPanel>
                                 <TextBlock Text="Tecnico"/>
                                 <ComboBox x:Name="VisitTechnicianBox" DisplayMemberPath="nombre_completo" SelectedValuePath="id_usuario"/>
@@ -300,11 +371,9 @@
                                 <TextBox x:Name="VisitDescriptionBox" MinHeight="90" TextWrapping="Wrap" AcceptsReturn="True"/>
                                 <Button Content="Guardar visita" Click="SaveVisit_Click"/>
                             </StackPanel>
-                        </ScrollViewer>
-                    </GroupBox>
+                            </GroupBox>
 
-                    <GroupBox Header="Registrar ticket" Grid.Column="1">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                            <GroupBox x:Name="TicketEntryGroup" Header="Registrar ticket">
                             <StackPanel>
                                 <TextBlock Text="Reportado por"/>
                                 <ComboBox x:Name="TicketReporterBox" DisplayMemberPath="nombre_completo" SelectedValuePath="id_usuario"/>
@@ -329,10 +398,39 @@
                                 <TextBox x:Name="TicketDescriptionBox" MinHeight="90" TextWrapping="Wrap" AcceptsReturn="True"/>
                                 <Button Content="Guardar ticket" Click="SaveTicket_Click"/>
                             </StackPanel>
-                        </ScrollViewer>
-                    </GroupBox>
+                            </GroupBox>
 
-                    <TabControl Grid.Column="2" Margin="4">
+                            <GroupBox x:Name="TicketWorkGroup" Header="Trabajar / cerrar ticket">
+                                <StackPanel>
+                                    <TextBlock x:Name="WorkTicketInfoText" Text="Seleccione un ticket de la tabla para ver su informacion." TextWrapping="Wrap" Foreground="#334155" Margin="4"/>
+                                    <TextBlock Text="Tipificacion"/>
+                                    <ComboBox x:Name="TicketResolutionTypeBox">
+                                        <ComboBoxItem Content="Soporte tecnico" IsSelected="True"/>
+                                        <ComboBoxItem Content="Mantenimiento"/>
+                                        <ComboBoxItem Content="Diagnostico"/>
+                                        <ComboBoxItem Content="Solicitud de equipo"/>
+                                        <ComboBoxItem Content="Cambio de equipo"/>
+                                        <ComboBoxItem Content="Prestamo"/>
+                                        <ComboBoxItem Content="Extra"/>
+                                        <ComboBoxItem Content="Devolucion"/>
+                                    </ComboBox>
+                                    <TextBlock Text="Resultado"/>
+                                    <ComboBox x:Name="TicketResolutionResultBox">
+                                        <ComboBoxItem Content="Exitoso" IsSelected="True"/>
+                                        <ComboBoxItem Content="Pendiente"/>
+                                        <ComboBoxItem Content="No resuelto"/>
+                                    </ComboBox>
+                                    <TextBlock Text="Descripcion del trabajo realizado"/>
+                                    <TextBox x:Name="TicketWorkDescriptionBox" MinHeight="100" TextWrapping="Wrap" AcceptsReturn="True"
+                                             ToolTip="Explique que se trabajo, que se entrego o por que queda pendiente/no resuelto."/>
+                                    <Button x:Name="CloseTicketButton" Content="Guardar atencion del ticket" Click="CloseTicket_Click"/>
+                                    <TextBlock x:Name="TicketWorkMessageText" Foreground="#0B4F2B" TextWrapping="Wrap" Margin="4,10,4,0"/>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <TabControl Grid.Column="1" Margin="4">
                         <TabItem Header="Visitas">
                             <Grid>
                                 <Grid.RowDefinitions>
@@ -374,4 +472,5 @@
             </TabItem>
         </TabControl>
     </DockPanel>
+    </Grid>
 </Window>

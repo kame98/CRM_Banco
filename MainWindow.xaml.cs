@@ -45,10 +45,15 @@ namespace BanruralCrmReporter
                        t.prioridad, t.estado,
                        CONCAT(rep.nombre, ' ', rep.apellido) AS reportado_por,
                        COALESCE(CONCAT(tec.nombre, ' ', tec.apellido), 'Sin asignar') AS tecnico_asignado,
-                       t.fecha_creacion
+                       COALESCE(t.tipificacion, '') AS tipificacion,
+                       COALESCE(t.resultado_atencion, '') AS resultado_atencion,
+                       COALESCE(t.descripcion_atencion, '') AS descripcion_atencion,
+                       COALESCE(CONCAT(cierre.nombre, ' ', cierre.apellido), 'Sin cierre') AS cerrado_por,
+                       t.fecha_creacion, t.fecha_cierre
                 FROM tickets t
                 INNER JOIN usuarios rep ON t.usuario_id = rep.id_usuario
                 LEFT JOIN usuarios tec ON t.tecnico_id = tec.id_usuario
+                LEFT JOIN usuarios cierre ON t.cerrado_por_id = cierre.id_usuario
                 ORDER BY CASE t.prioridad WHEN 'Alta' THEN 2 WHEN 'Media' THEN 3 WHEN 'Baja' THEN 4 ELSE 1 END, t.fecha_creacion DESC;",
             ["mantenimientos"] = @"
                 SELECT m.id_mantenimiento, m.tipo_mantenimiento,
@@ -99,6 +104,10 @@ namespace BanruralCrmReporter
 
         private int _editingUserId = 0;
         private int _editingAssetId = 0;
+        private int _currentUserId = 0;
+        private int _selectedTicketId = 0;
+        private string _currentUserName = "";
+        private string _currentRoleName = "";
 
         public MainWindow()
         {
@@ -106,6 +115,7 @@ namespace BanruralCrmReporter
             ReportBox.SelectedIndex = 0;
             VisitDatePicker.SelectedDate = DateTime.Today;
             PurchaseDatePicker.SelectedDate = DateTime.Today;
+            LoginUserBox.Focus();
         }
 
         private string ConnectionString
@@ -152,6 +162,81 @@ namespace BanruralCrmReporter
         private async void LoadSelectedReport_Click(object sender, RoutedEventArgs e)
         {
             await LoadSelectedReportAsync();
+        }
+
+        private async void Login_Click(object sender, RoutedEventArgs e)
+        {
+            await LoginAsync();
+        }
+
+        private async void LoginPasswordBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                await LoginAsync();
+            }
+        }
+
+        private void Logout_Click(object sender, RoutedEventArgs e)
+        {
+            _currentUserId = 0;
+            _currentUserName = "";
+            _currentRoleName = "";
+            AppShell.Visibility = Visibility.Collapsed;
+            LoginPanel.Visibility = Visibility.Visible;
+            LoginPasswordBox.Clear();
+            LoginMessageText.Text = "Sesion cerrada.";
+            LoginUserBox.Focus();
+        }
+
+        private async Task LoginAsync()
+        {
+            LoginMessageText.Text = "";
+
+            if (string.IsNullOrWhiteSpace(LoginUserBox.Text) || string.IsNullOrWhiteSpace(LoginPasswordBox.Password))
+            {
+                LoginMessageText.Text = "Ingrese usuario/correo y contrasena.";
+                return;
+            }
+
+            await RunSafeAsync(async () =>
+            {
+                await EnsureDefaultUsersAsync();
+                await EnsureTicketWorkflowColumnsAsync();
+
+                const string sql = @"
+                    SELECT u.id_usuario, CONCAT(u.nombre, ' ', u.apellido) AS nombre_completo,
+                           u.nombre, u.correo, r.nombre_rol
+                    FROM usuarios u
+                    INNER JOIN roles r ON u.rol_id = r.id_rol
+                    WHERE u.estado = 'activo'
+                      AND (u.correo = @login OR u.nombre = @login OR CONCAT(u.nombre, ' ', u.apellido) = @login)
+                      AND u.contrasena = @password
+                    LIMIT 1;";
+
+                var user = await QueryAsyncWithParameters(sql,
+                    ("@login", LoginUserBox.Text.Trim()),
+                    ("@password", LoginPasswordBox.Password));
+
+                if (user.Rows.Count == 0)
+                {
+                    LoginMessageText.Text = "Credenciales invalidas o usuario inactivo.";
+                    SetStatus("Login fallido", false);
+                    return;
+                }
+
+                var row = user.Rows[0];
+                _currentUserId = Convert.ToInt32(row["id_usuario"]);
+                _currentUserName = Convert.ToString(row["nombre_completo"]);
+                _currentRoleName = Convert.ToString(row["nombre_rol"]);
+
+                CurrentUserText.Text = $"{_currentUserName} ({_currentRoleName})";
+                LoginPanel.Visibility = Visibility.Collapsed;
+                AppShell.Visibility = Visibility.Visible;
+                ApplyPermissions();
+                await LoadAllAsync();
+                SetStatus("Sesion iniciada", true);
+            });
         }
 
         private async void SaveUser_Click(object sender, RoutedEventArgs e)
@@ -342,8 +427,97 @@ namespace BanruralCrmReporter
 
                 ClearTicketForm();
                 await LoadTicketsAsync();
+                await LoadUserTicketsAsync();
                 await LoadDashboardAsync();
                 SetStatus("Ticket registrado correctamente", true);
+            });
+        }
+
+        private async void CreateUserTicket_Click(object sender, RoutedEventArgs e)
+        {
+            await RunSafeAsync(async () =>
+            {
+                if (_currentUserId <= 0)
+                {
+                    ShowValidation("Debe iniciar sesion para crear solicitudes.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(RequestTicketTitleBox.Text) ||
+                    string.IsNullOrWhiteSpace(RequestTicketDescriptionBox.Text))
+                {
+                    ShowValidation("Ingrese titulo y descripcion de la solicitud.");
+                    return;
+                }
+
+                const string sql = @"
+                    INSERT INTO tickets (usuario_id, tecnico_id, titulo, descripcion, estado, prioridad, tipificacion)
+                    VALUES (@usuario_id, NULL, @titulo, @descripcion, 'Pendiente', @prioridad, @tipificacion);";
+
+                await ExecuteAsync(sql,
+                    ("@usuario_id", _currentUserId),
+                    ("@titulo", RequestTicketTitleBox.Text.Trim()),
+                    ("@descripcion", RequestTicketDescriptionBox.Text.Trim()),
+                    ("@prioridad", DatabasePriority(ComboText(RequestTicketPriorityBox))),
+                    ("@tipificacion", ComboText(RequestTicketTypeBox)));
+
+                RequestTicketTitleBox.Clear();
+                RequestTicketDescriptionBox.Clear();
+                RequestTicketMessageText.Text = "Solicitud enviada correctamente. Estado inicial: Pendiente.";
+                await LoadUserTicketsAsync();
+                await LoadTicketsAsync();
+                await LoadDashboardAsync();
+                SetStatus("Solicitud de ticket creada", true);
+            });
+        }
+
+        private async void CloseTicket_Click(object sender, RoutedEventArgs e)
+        {
+            await RunSafeAsync(async () =>
+            {
+                if (_selectedTicketId <= 0)
+                {
+                    ShowValidation("Seleccione un ticket de la tabla antes de guardar la atencion.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(TicketWorkDescriptionBox.Text))
+                {
+                    ShowValidation("Ingrese la descripcion del trabajo realizado.");
+                    return;
+                }
+
+                string result = ComboText(TicketResolutionResultBox);
+                string ticketStatus = TicketStatusFromResult(result);
+
+                const string sql = @"
+                    UPDATE tickets
+                    SET estado = @estado,
+                        tecnico_id = COALESCE(tecnico_id, @usuario_id),
+                        tipificacion = @tipificacion,
+                        resultado_atencion = @resultado,
+                        descripcion_atencion = @descripcion_atencion,
+                        cerrado_por_id = @usuario_id,
+                        fecha_cierre = CASE WHEN @estado = 'Resuelto' THEN CURRENT_TIMESTAMP ELSE NULL END
+                    WHERE id_ticket = @id_ticket;";
+
+                await ExecuteAsync(sql,
+                    ("@estado", ticketStatus),
+                    ("@usuario_id", _currentUserId),
+                    ("@tipificacion", ComboText(TicketResolutionTypeBox)),
+                    ("@resultado", result),
+                    ("@descripcion_atencion", TicketWorkDescriptionBox.Text.Trim()),
+                    ("@id_ticket", _selectedTicketId));
+
+                TicketWorkDescriptionBox.Clear();
+                TicketWorkMessageText.Text = $"Ticket #{_selectedTicketId} actualizado como {result}.";
+                await LoadTicketsAsync();
+                await LoadUserTicketsAsync();
+                if (DashboardTab.Visibility == Visibility.Visible)
+                {
+                    await LoadDashboardAsync();
+                }
+                SetStatus("Atencion de ticket guardada", true);
             });
         }
 
@@ -352,12 +526,33 @@ namespace BanruralCrmReporter
             await RunSafeAsync(async () =>
             {
                 await LoadLookupsAsync();
-                await LoadDashboardAsync();
-                await LoadUsersAsync();
-                await LoadInventoryAsync();
-                await LoadVisitsAsync();
-                await LoadTicketsAsync();
-                await LoadSelectedReportAsync();
+                if (DashboardTab.Visibility == Visibility.Visible)
+                {
+                    await LoadDashboardAsync();
+                }
+
+                if (UsersTab.Visibility == Visibility.Visible)
+                {
+                    await LoadUsersAsync();
+                }
+
+                if (InventoryTab.Visibility == Visibility.Visible)
+                {
+                    await LoadInventoryAsync();
+                }
+
+                if (WorkTab.Visibility == Visibility.Visible)
+                {
+                    await LoadVisitsAsync();
+                    await LoadTicketsAsync();
+                }
+
+                await LoadUserTicketsAsync();
+                if (ReportsTab.Visibility == Visibility.Visible)
+                {
+                    await LoadSelectedReportAsync();
+                }
+
                 SetStatus("Datos cargados correctamente", true);
             });
         }
@@ -455,8 +650,198 @@ namespace BanruralCrmReporter
             TicketsGrid.ItemsSource = (await QueryAsync(_reports["tickets"])).DefaultView;
         }
 
+        private async Task LoadUserTicketsAsync()
+        {
+            const string baseSql = @"
+                SELECT t.id_ticket, t.titulo, t.descripcion, t.prioridad, t.estado,
+                       CONCAT(rep.nombre, ' ', rep.apellido) AS creado_por,
+                       COALESCE(CONCAT(tec.nombre, ' ', tec.apellido), 'Sin asignar') AS tecnico_asignado,
+                       COALESCE(t.tipificacion, '') AS tipificacion,
+                       COALESCE(t.resultado_atencion, '') AS resultado_atencion,
+                       COALESCE(t.descripcion_atencion, '') AS descripcion_atencion,
+                       COALESCE(CONCAT(cierre.nombre, ' ', cierre.apellido), 'Sin cierre') AS cerrado_por,
+                       t.fecha_creacion, t.fecha_cierre
+                FROM tickets t
+                INNER JOIN usuarios rep ON t.usuario_id = rep.id_usuario
+                LEFT JOIN usuarios tec ON t.tecnico_id = tec.id_usuario
+                LEFT JOIN usuarios cierre ON t.cerrado_por_id = cierre.id_usuario";
+
+            if (RoleIs("Usuario"))
+            {
+                UserTicketsTitleText.Text = "Mis solicitudes de tickets";
+                UserTicketsGrid.ItemsSource = (await QueryAsyncWithParameters(
+                    baseSql + " WHERE t.usuario_id = @usuario_id ORDER BY t.fecha_creacion DESC;",
+                    ("@usuario_id", _currentUserId))).DefaultView;
+            }
+            else
+            {
+                UserTicketsTitleText.Text = "Tickets creados por usuarios";
+                UserTicketsGrid.ItemsSource = (await QueryAsync(
+                    baseSql + " ORDER BY t.fecha_creacion DESC;")).DefaultView;
+            }
+        }
+
+        private async Task EnsureDefaultUsersAsync()
+        {
+            var roles = new[]
+            {
+                ("Administrador", "Control total del sistema"),
+                ("Auditor", "Consulta auditoria, logs e historial"),
+                ("Encargado de Bodega", "Gestiona inventario y bodega"),
+                ("Gerencia", "Consulta dashboards, KPIs y reportes"),
+                ("Supervisor IT", "Supervisa visitas, tickets, tecnicos y KPIs"),
+                ("T\u00e9cnico IT", "Registra visitas, mantenimientos y atiende tickets"),
+                ("Usuario", "Crea solicitudes de tickets y consulta su estado")
+            };
+
+            foreach (var role in roles)
+            {
+                await ExecuteAsync(@"
+                    INSERT INTO roles (nombre_rol, descripcion)
+                    SELECT @nombre_rol, @descripcion
+                    WHERE NOT EXISTS (SELECT 1 FROM roles WHERE nombre_rol = @nombre_rol);",
+                    ("@nombre_rol", role.Item1),
+                    ("@descripcion", role.Item2));
+            }
+
+            var users = new[]
+            {
+                ("Administrador", "Sistema", "admin@banrural.local", "admin123", "Administrador"),
+                ("Auditor", "Sistema", "auditor@banrural.local", "auditor123", "Auditor"),
+                ("Bodega", "Sistema", "bodega@banrural.local", "bodega123", "Encargado de Bodega"),
+                ("Gerencia", "Sistema", "gerencia@banrural.local", "gerencia123", "Gerencia"),
+                ("Supervisor", "IT", "supervisor@banrural.local", "supervisor123", "Supervisor IT"),
+                ("Tecnico", "IT", "tecnico@banrural.local", "tecnico123", "T\u00e9cnico IT"),
+                ("usuario", "General", "usuario@banrural.local", "usuario123", "Usuario")
+            };
+
+            foreach (var user in users)
+            {
+                await ExecuteAsync(@"
+                    INSERT INTO usuarios (nombre, apellido, correo, contrasena, telefono, rol_id, estado)
+                    SELECT @nombre, @apellido, @correo, @contrasena, '', r.id_rol, 'activo'
+                    FROM roles r
+                    WHERE r.nombre_rol = @rol
+                      AND NOT EXISTS (SELECT 1 FROM usuarios WHERE correo = @correo);",
+                    ("@nombre", user.Item1),
+                    ("@apellido", user.Item2),
+                    ("@correo", user.Item3),
+                    ("@contrasena", user.Item4),
+                    ("@rol", user.Item5));
+            }
+        }
+
+        private async Task EnsureTicketWorkflowColumnsAsync()
+        {
+            await AddTicketColumnIfMissingAsync("tipificacion", "ALTER TABLE tickets ADD COLUMN tipificacion VARCHAR(100) NULL;");
+            await AddTicketColumnIfMissingAsync("resultado_atencion", "ALTER TABLE tickets ADD COLUMN resultado_atencion VARCHAR(30) NULL;");
+            await AddTicketColumnIfMissingAsync("descripcion_atencion", "ALTER TABLE tickets ADD COLUMN descripcion_atencion TEXT NULL;");
+            await AddTicketColumnIfMissingAsync("cerrado_por_id", "ALTER TABLE tickets ADD COLUMN cerrado_por_id INT NULL;");
+            await AddTicketColumnIfMissingAsync("fecha_cierre", "ALTER TABLE tickets ADD COLUMN fecha_cierre TIMESTAMP NULL;");
+        }
+
+        private async Task AddTicketColumnIfMissingAsync(string columnName, string alterSql)
+        {
+            const string existsSql = @"
+                SELECT COUNT(*) AS total
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = 'tickets'
+                  AND COLUMN_NAME = @column_name;";
+
+            var result = await QueryAsyncWithParameters(existsSql, ("@column_name", columnName));
+            if (result.Rows.Count == 0 || ToDecimal(result.Rows[0]["total"]) == 0)
+            {
+                await ExecuteAsync(alterSql);
+            }
+        }
+
+        private void ApplyPermissions()
+        {
+            bool admin = RoleIs("Administrador");
+            bool auditor = RoleIs("Auditor");
+            bool bodega = RoleIs("Encargado de Bodega");
+            bool gerencia = RoleIs("Gerencia");
+            bool supervisor = RoleIs("Supervisor IT");
+            bool tecnico = RoleIs("Tecnico IT");
+            bool usuario = RoleIs("Usuario");
+
+            ConnectionTab.Visibility = admin ? Visibility.Visible : Visibility.Collapsed;
+            UsersTab.Visibility = admin ? Visibility.Visible : Visibility.Collapsed;
+            DashboardTab.Visibility = (admin || auditor || gerencia || supervisor) ? Visibility.Visible : Visibility.Collapsed;
+            ReportsTab.Visibility = (admin || auditor || gerencia || supervisor) ? Visibility.Visible : Visibility.Collapsed;
+            InventoryTab.Visibility = (admin || bodega || supervisor) ? Visibility.Visible : Visibility.Collapsed;
+            WorkTab.Visibility = (admin || tecnico || supervisor || bodega) ? Visibility.Visible : Visibility.Collapsed;
+            UserRequestsTab.Visibility = Visibility.Visible;
+
+            VisitEntryGroup.Visibility = (admin || tecnico || supervisor) ? Visibility.Visible : Visibility.Collapsed;
+            TicketEntryGroup.Visibility = (admin || tecnico || supervisor) ? Visibility.Visible : Visibility.Collapsed;
+            TicketWorkGroup.Visibility = (admin || tecnico || supervisor || bodega) ? Visibility.Visible : Visibility.Collapsed;
+
+            RequestTicketTitleBox.IsEnabled = usuario || admin || tecnico || supervisor;
+            RequestTicketTypeBox.IsEnabled = usuario || admin || tecnico || supervisor;
+            RequestTicketPriorityBox.IsEnabled = usuario || admin || tecnico || supervisor;
+            RequestTicketDescriptionBox.IsEnabled = usuario || admin || tecnico || supervisor;
+            RequestTicketButton.IsEnabled = usuario || admin || tecnico || supervisor;
+
+            SelectDefaultReportForRole();
+            SelectFirstVisibleTab();
+        }
+
+        private bool CanViewReport(string key)
+        {
+            if (RoleIs("Administrador") || RoleIs("Gerencia") || RoleIs("Supervisor IT"))
+            {
+                return true;
+            }
+
+            if (RoleIs("Auditor"))
+            {
+                return key == "logs" || key == "movimientos";
+            }
+
+            return false;
+        }
+
+        private void SelectDefaultReportForRole()
+        {
+            string defaultKey = RoleIs("Auditor") ? "logs" : "usuarios";
+
+            foreach (var rawItem in ReportBox.Items)
+            {
+                if (rawItem is ComboBoxItem item && Convert.ToString(item.Tag) == defaultKey)
+                {
+                    ReportBox.SelectedItem = item;
+                    return;
+                }
+            }
+        }
+
+        private void SelectFirstVisibleTab()
+        {
+            if (RoleIs("Usuario"))
+            {
+                MainTabs.SelectedItem = UserRequestsTab;
+                return;
+            }
+
+            foreach (TabItem item in MainTabs.Items)
+            {
+                if (item.Visibility == Visibility.Visible)
+                {
+                    MainTabs.SelectedItem = item;
+                    return;
+                }
+            }
+        }
+
         private async Task LoadSelectedReportAsync()
         {
+            if (_currentUserId == 0)
+            {
+                return;
+            }
+
             if (!(ReportBox.SelectedItem is ComboBoxItem item) || item.Tag == null)
             {
                 return;
@@ -464,8 +849,9 @@ namespace BanruralCrmReporter
 
             var key = Convert.ToString(item.Tag);
 
-            if (!_reports.ContainsKey(key))
+            if (!_reports.ContainsKey(key) || !CanViewReport(key))
             {
+                SetStatus("Reporte no permitido para el rol actual", false);
                 return;
             }
 
@@ -701,6 +1087,21 @@ namespace BanruralCrmReporter
             return value == "Critica" ? "Cr\u00edtica" : value;
         }
 
+        private static string TicketStatusFromResult(string result)
+        {
+            if (result == "Exitoso")
+            {
+                return "Resuelto";
+            }
+
+            if (result == "No resuelto")
+            {
+                return "En proceso";
+            }
+
+            return "Pendiente";
+        }
+
         private static object DateOrNull(DateTime? value)
         {
             return value.HasValue ? value.Value : (object)DBNull.Value;
@@ -719,6 +1120,37 @@ namespace BanruralCrmReporter
             }
 
             return Convert.ToDecimal(value);
+        }
+
+        private static string ColumnText(DataRow row, string columnName, string fallback = "")
+        {
+            if (row == null || !row.Table.Columns.Contains(columnName) || row[columnName] == DBNull.Value)
+            {
+                return fallback;
+            }
+
+            var value = Convert.ToString(row[columnName]);
+            return string.IsNullOrWhiteSpace(value) ? fallback : value;
+        }
+
+        private bool RoleIs(string role)
+        {
+            return NormalizeRole(_currentRoleName) == NormalizeRole(role);
+        }
+
+        private static string NormalizeRole(string role)
+        {
+            return (role ?? "")
+                .Trim()
+                .ToLowerInvariant()
+                .Replace("\u00e9", "e")
+                .Replace("\u00c9", "e")
+                .Replace("\u00ed", "i")
+                .Replace("\u00cd", "i")
+                .Replace("\u00f3", "o")
+                .Replace("\u00d3", "o")
+                .Replace("\u00fa", "u")
+                .Replace("\u00da", "u");
         }
 
         private static void SelectFirstIfEmpty(ComboBox comboBox)
@@ -884,10 +1316,15 @@ namespace BanruralCrmReporter
                            t.prioridad, t.estado,
                            CONCAT(rep.nombre, ' ', rep.apellido) AS reportado_por,
                            COALESCE(CONCAT(tec.nombre, ' ', tec.apellido), 'Sin asignar') AS tecnico_asignado,
-                           t.fecha_creacion
+                           COALESCE(t.tipificacion, '') AS tipificacion,
+                           COALESCE(t.resultado_atencion, '') AS resultado_atencion,
+                           COALESCE(t.descripcion_atencion, '') AS descripcion_atencion,
+                           COALESCE(CONCAT(cierre.nombre, ' ', cierre.apellido), 'Sin cierre') AS cerrado_por,
+                           t.fecha_creacion, t.fecha_cierre
                     FROM tickets t
                     INNER JOIN usuarios rep ON t.usuario_id = rep.id_usuario
                     LEFT JOIN usuarios tec ON t.tecnico_id = tec.id_usuario
+                    LEFT JOIN usuarios cierre ON t.cerrado_por_id = cierre.id_usuario
                     WHERE t.id_ticket = @ticket_id;";
 
                 var data = await QueryAsyncWithParameters(sql, ("@ticket_id", ticketId));
@@ -975,6 +1412,19 @@ namespace BanruralCrmReporter
             }
         }
 
+        private void UserTicketsGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (UserTicketsGrid.SelectedItem is DataRowView row)
+            {
+                LoadTicketWorkInfo(row.Row);
+                MessageBox.Show(
+                    $"Ticket #{row["id_ticket"]}\nCreado por: {row["creado_por"]}\nTecnico: {row["tecnico_asignado"]}\nPrioridad: {row["prioridad"]}\nEstado: {row["estado"]}\nTipificacion: {ColumnText(row.Row, "tipificacion")}\nResultado: {ColumnText(row.Row, "resultado_atencion")}\nCerrado por: {ColumnText(row.Row, "cerrado_por")}\n\nSolicitud:\n{row["descripcion"]}\n\nAtencion:\n{ColumnText(row.Row, "descripcion_atencion")}",
+                    "Detalle de solicitud",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+        }
+
         private void LoadTicketIntoForm(DataRow row)
         {
             TicketTitleBox.Text = Convert.ToString(row["titulo"]);
@@ -983,9 +1433,23 @@ namespace BanruralCrmReporter
             SelectComboByValue(TicketTechnicianBox, row["tecnico_id"]);
             SelectComboByText(TicketPriorityBox, DisplayPriority(Convert.ToString(row["prioridad"])));
             SelectComboByText(TicketStatusBox, Convert.ToString(row["estado"]));
+            LoadTicketWorkInfo(row);
 
             TicketDetailsText.Text =
-                $"Ticket #{row["id_ticket"]}\nReportado por: {row["reportado_por"]}\nTecnico: {row["tecnico_asignado"]}\nPrioridad: {row["prioridad"]}\nEstado: {row["estado"]}\nDetalle: {row["descripcion"]}";
+                $"Ticket #{row["id_ticket"]}\nReportado por: {row["reportado_por"]}\nTecnico: {row["tecnico_asignado"]}\nPrioridad: {row["prioridad"]}\nEstado: {row["estado"]}\nTipificacion: {ColumnText(row, "tipificacion")}\nResultado: {ColumnText(row, "resultado_atencion")}\nDetalle: {row["descripcion"]}";
+        }
+
+        private void LoadTicketWorkInfo(DataRow row)
+        {
+            _selectedTicketId = Convert.ToInt32(row["id_ticket"]);
+            TicketResolutionTypeBox.SelectedIndex = 0;
+            TicketResolutionResultBox.SelectedIndex = 0;
+            SelectComboByText(TicketResolutionTypeBox, ColumnText(row, "tipificacion"));
+            SelectComboByText(TicketResolutionResultBox, ColumnText(row, "resultado_atencion"));
+            TicketWorkDescriptionBox.Text = ColumnText(row, "descripcion_atencion");
+            WorkTicketInfoText.Text =
+                $"Ticket #{row["id_ticket"]}\nSolicitante: {ColumnText(row, "reportado_por", ColumnText(row, "creado_por"))}\nTecnico: {ColumnText(row, "tecnico_asignado")}\nPrioridad: {row["prioridad"]}\nEstado actual: {row["estado"]}\nFecha: {ColumnText(row, "fecha_creacion")}\n\nSolicitud:\n{row["descripcion"]}";
+            TicketWorkMessageText.Text = "Listo para registrar la atencion o cierre.";
         }
 
         private void SelectComboByValue(ComboBox comboBox, object value)
