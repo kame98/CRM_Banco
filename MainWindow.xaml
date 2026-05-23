@@ -84,55 +84,6 @@
         </Border>
 
         <TabControl x:Name="MainTabs" Margin="10">
-            <TabItem x:Name="ConnectionTab" Header="Conexion">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel MaxWidth="760" HorizontalAlignment="Left" Margin="12">
-                        <GroupBox Header="MySQL">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <TextBlock Grid.Row="0" Text="Servidor" VerticalAlignment="Center"/>
-                                <TextBox x:Name="ServerBox" Grid.Row="0" Grid.Column="1" Text="192.168.1.78"/>
-
-                                <TextBlock Grid.Row="1" Text="Puerto" VerticalAlignment="Center"/>
-                                <TextBox x:Name="PortBox" Grid.Row="1" Grid.Column="1" Text="3306"/>
-
-                                <TextBlock Grid.Row="2" Text="Base de datos" VerticalAlignment="Center"/>
-                                <TextBox x:Name="DatabaseBox" Grid.Row="2" Grid.Column="1" Text="banrural_crm"/>
-
-                                <TextBlock Grid.Row="3" Text="Usuario" VerticalAlignment="Center"/>
-                                <TextBox x:Name="UserBox" Grid.Row="3" Grid.Column="1" Text="kevin"/>
-
-                                <TextBlock Grid.Row="4" Text="Contrasena" VerticalAlignment="Center"/>
-                                <PasswordBox x:Name="PasswordBox" Grid.Row="4" Grid.Column="1" Password="1234"/>
-
-                                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
-                                    <Button Content="Probar conexion" Click="TestConnection_Click"/>
-                                    <Button Content="Cargar datos" Click="RefreshAll_Click"/>
-                                </StackPanel>
-                            </Grid>
-                        </GroupBox>
-
-                        <GroupBox Header="Primer uso">
-                            <TextBlock TextWrapping="Wrap" Foreground="#334155">
-                                Ejecute el archivo scripts/schema_mysql.sql en MySQL si necesita crear la base banrural_crm con datos de ejemplo. Despues pruebe la conexion y cargue datos.
-                            </TextBlock>
-                        </GroupBox>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-
             <TabItem x:Name="DashboardTab" Header="Dashboard">
                 <Grid>
                     <Grid.RowDefinitions>

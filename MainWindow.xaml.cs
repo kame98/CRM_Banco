@@ -124,11 +124,11 @@ namespace BanruralCrmReporter
             {
                 var builder = new MySqlConnectionStringBuilder
                 {
-                    Server = ServerBox.Text.Trim(),
-                    Port = uint.TryParse(PortBox.Text, out var port) ? port : 3306,
-                    Database = DatabaseBox.Text.Trim(),
-                    UserID = UserBox.Text.Trim(),
-                    Password = PasswordBox.Password,
+                    Server = "",
+                    Port = ,
+                    Database = "",
+                    UserID = "",
+                    Password = "",
                     CharacterSet = "utf8mb4",
                     AllowUserVariables = true
                 };
@@ -766,7 +766,6 @@ namespace BanruralCrmReporter
             bool tecnico = RoleIs("Tecnico IT");
             bool usuario = RoleIs("Usuario");
 
-            ConnectionTab.Visibility = admin ? Visibility.Visible : Visibility.Collapsed;
             UsersTab.Visibility = admin ? Visibility.Visible : Visibility.Collapsed;
             DashboardTab.Visibility = (admin || auditor || gerencia || supervisor) ? Visibility.Visible : Visibility.Collapsed;
             ReportsTab.Visibility = (admin || auditor || gerencia || supervisor) ? Visibility.Visible : Visibility.Collapsed;
